@@ -163,6 +163,8 @@
             justify-content: center;
         }
         
+
+        
         .stats {
             display: grid;
             grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
@@ -478,38 +480,6 @@
             transform: translateY(0);
             background: rgba(0, 188, 212, 0.4);
         }
-        
-        .footer {
-            text-align: center;
-            padding: 20px;
-            margin-top: 30px;
-            border-top: 1px solid rgba(255, 255, 255, 0.2);
-            color: rgba(255, 255, 255, 0.8);
-            font-size: 14px;
-        }
-        
-        .footer-buttons {
-            display: flex;
-            gap: 15px;
-            justify-content: center;
-            align-items: center;
-            margin-top: 15px;
-            flex-wrap: wrap;
-        }
-        
-        .footer-buttons button {
-            width: auto;
-            padding: 10px 20px;
-            margin: 0;
-        }
-        
-        .beer-button {
-            background: linear-gradient(45deg, #f39c12, #e67e22) !important;
-        }
-        
-        .reset-button {
-            background: linear-gradient(45deg, #e74c3c, #c0392b) !important;
-        }
     </style>
 </head>
 <body>
@@ -520,6 +490,7 @@
             <h3>Koch Method Training Protocol</h3>
             <p><strong>Goal:</strong> 28 WPM Reception | <strong>Method:</strong> Sound Recognition Only</p>
             <ul>
+                <!-- <li>Characters sent at 28 WPM from day 1 (Farnsworth spacing for comfort) - You can change speed for your WPM goal.</li> -->
                 <li>Best practice is to start at your target WPM and not increase read speed over time</li>
                 <li>NO visual morse patterns - train your ear, not your eyes</li>
                 <li>Master each character group before advancing</li>
@@ -588,7 +559,7 @@
         </div>
 
         <div class="reference-practice">
-            <h3>📊 Character Reference - Click to Hear</h3>
+            <h3>🔊 Character Reference - Click to Hear</h3>
             <p>Click any character below to hear how it sounds in Morse code</p>
             
             <div class="reference-grid" id="referenceGrid"></div>
@@ -666,14 +637,6 @@
                     <div class="stat-value" id="sessionTime">0</div>
                     <div>Minutes</div>
                 </div>
-            </div>
-        </div>
-        
-        <div class="footer">
-            <p>Created by MW7GHQ</p>
-            <div class="footer-buttons">
-                <button id="resetProgress" class="reset-button">Reset Progress</button>
-                <button id="buyMeABeer" class="beer-button">🍺 Buy Me a Beer</button>
             </div>
         </div>
     </div>
@@ -763,23 +726,14 @@
         let stats = { correct: 0, total: 0, streak: 0, maxStreak: 0 };
         let currentLesson = 1;
 
-        // Storage keys
-        const STORAGE_KEYS = {
-            CURRENT_LESSON: 'morse_current_lesson',
-            STATS: 'morse_stats',
-            CUSTOM_CHARS: 'morse_custom_chars',
-            SELECTED_GROUP: 'morse_selected_group'
-        };
-
         // Initialize the application
         function initializeApp() {
-            loadProgress();
             setupEventListeners();
             updateCharacterGrid();
             initializeAudio();
-            selectCharacterGroup(selectedGroup);
-            createCustomCharacterGrid();
-            createReferenceGrid();
+            selectCharacterGroup('basic'); // Start with basic group
+            createCustomCharacterGrid(); // Initialize individual practice grid
+            createReferenceGrid(); // Initialize reference grid
         }
 
         function setupEventListeners() {
@@ -807,12 +761,6 @@
             document.getElementById('clearCustom').addEventListener('click', clearCustomCharacters);
             document.getElementById('selectAllVisible').addEventListener('click', selectAllVisibleCharacters);
             document.getElementById('useCustomSet').addEventListener('click', useCustomCharacterSet);
-            
-            // Footer buttons
-            document.getElementById('resetProgress').addEventListener('click', resetProgress);
-            document.getElementById('buyMeABeer').addEventListener('click', () => {
-                window.open('https://www.buymeacoffee.com/', '_blank');
-            });
             
             // Enter key handling
             document.getElementById('userInput').addEventListener('keypress', function(e) {
@@ -877,6 +825,7 @@
 
         function startTrainingSession() {
             try {
+                // Initialize audio context if not already done
                 if (!audioContext) {
                     audioContext = new (window.AudioContext || window.webkitAudioContext)();
                 }
@@ -893,6 +842,7 @@
             currentSession = true;
             sessionStartTime = Date.now();
             
+            // Enable/disable controls
             document.getElementById('startSession').disabled = true;
             document.getElementById('stopSession').disabled = false;
             document.getElementById('userInput').disabled = false;
@@ -900,12 +850,15 @@
             document.getElementById('checkAnswer').disabled = false;
             document.getElementById('nextGroup').disabled = false;
             
+            // Start session timer
             const duration = parseInt(document.getElementById('sessionDuration').value);
             startSessionTimer(duration);
             
+            // Generate first group
             generateCurrentLessonChars();
             generateNextGroup();
             
+            // Focus the input field for immediate typing (with delay to ensure it's enabled)
             setTimeout(() => {
                 document.getElementById('userInput').focus();
             }, 100);
@@ -916,6 +869,7 @@
         function stopTrainingSession() {
             currentSession = false;
             
+            // Disable controls
             document.getElementById('startSession').disabled = false;
             document.getElementById('stopSession').disabled = true;
             document.getElementById('userInput').disabled = true;
@@ -923,6 +877,7 @@
             document.getElementById('checkAnswer').disabled = true;
             document.getElementById('nextGroup').disabled = true;
             
+            // Stop timer
             if (sessionTimer) {
                 clearInterval(sessionTimer);
             }
@@ -934,15 +889,12 @@
             const grid = document.getElementById('customCharacterGrid');
             grid.innerHTML = '';
             
+            // Create buttons for all available characters
             Object.keys(morseCode).forEach(char => {
                 const button = document.createElement('div');
                 button.className = 'custom-char-button';
                 button.textContent = char;
                 button.dataset.char = char;
-                
-                if (customCharacters.has(char)) {
-                    button.classList.add('selected');
-                }
                 
                 button.addEventListener('click', () => toggleCustomCharacter(char, button));
                 grid.appendChild(button);
@@ -961,8 +913,7 @@
             }
             updateCustomSetDisplay();
             
-            saveProgress();
-            
+            // Play the character sound when selected
             playCharacter(char);
         }
 
@@ -990,12 +941,15 @@
                 return;
             }
             
+            // Switch to individual practice mode
             document.getElementById('trainingMode').value = 'individual';
             
+            // Update display
             const charArray = Array.from(customCharacters).sort();
             document.getElementById('currentGroupChars').textContent = charArray.join(' ');
             document.getElementById('groupDescription').textContent = `Custom selection: ${customCharacters.size} characters`;
             
+            // Clear group button selections
             document.querySelectorAll('.group-btn').forEach(btn => btn.classList.remove('active'));
         }
 
@@ -1012,6 +966,7 @@
             const grid = document.getElementById('referenceGrid');
             grid.innerHTML = '';
             
+            // Create buttons for all available characters
             Object.keys(morseCode).forEach(char => {
                 const button = document.createElement('div');
                 button.className = 'reference-char-button';
@@ -1019,11 +974,13 @@
                 button.title = `Click to hear "${char}" (${morseCode[char]})`;
                 
                 button.addEventListener('click', () => {
+                    // Visual feedback
                     button.style.background = 'rgba(0, 188, 212, 0.4)';
                     setTimeout(() => {
                         button.style.background = '';
                     }, 200);
                     
+                    // Play the character
                     playCharacter(char);
                 });
                 
@@ -1062,17 +1019,19 @@
             selectedGroup = groupKey;
             const group = characterGroups[groupKey];
             
+            // Update active button
             document.querySelectorAll('.group-btn').forEach(btn => btn.classList.remove('active'));
             document.querySelector(`[data-group="${groupKey}"]`).classList.add('active');
             
+            // Update current practice characters
             currentChars = [...group.chars];
             
+            // Update display
             document.getElementById('currentGroupChars').textContent = group.chars.join(' ');
             document.getElementById('groupDescription').textContent = group.description;
             
+            // Update training mode to use selected group
             document.getElementById('trainingMode').value = 'custom';
-            
-            saveProgress();
         }
 
         function generateNextGroup() {
@@ -1125,12 +1084,14 @@
             const inputField = document.getElementById('userInput');
             inputField.value = '';
             
+            // Focus input field after clearing
             setTimeout(() => {
                 if (!inputField.disabled) {
                     inputField.focus();
                 }
             }, 50);
             
+            // Play the morse code
             playMorseText(currentText);
         }
 
@@ -1138,6 +1099,7 @@
             if (currentText && currentSession) {
                 playMorseText(currentText);
                 document.getElementById('displayText').textContent = 'Repeating...';
+                // Keep focus on input after repeat with small delay
                 setTimeout(() => {
                     const inputField = document.getElementById('userInput');
                     if (!inputField.disabled) {
@@ -1159,7 +1121,8 @@
             const charSpeed = parseInt(document.getElementById('charSpeed').value);
             const overallSpeed = parseInt(document.getElementById('overallSpeed').value);
             
-            const dotDuration = 1200 / charSpeed;
+            // Calculate timing
+            const dotDuration = 1200 / charSpeed; // milliseconds
             const charSpacing = dotDuration * 3;
             const wordSpacing = (1200 / overallSpeed) * 7 - charSpacing;
             
@@ -1180,10 +1143,10 @@
                     const duration = element === '.' ? dotDuration : dotDuration * 3;
                     
                     playTone(currentTime, duration / 1000);
-                    currentTime += (duration + dotDuration) / 1000;
+                    currentTime += (duration + dotDuration) / 1000; // Inter-element spacing
                 }
                 
-                currentTime += charSpacing / 1000 - dotDuration / 1000;
+                currentTime += charSpacing / 1000 - dotDuration / 1000; // Inter-character spacing
             }
         }
 
@@ -1221,6 +1184,7 @@
                 oscillator.frequency.setValueAtTime(frequency, startTime);
                 oscillator.type = 'sine';
                 
+                // Smooth attack and release to avoid clicks
                 gainNode.gain.setValueAtTime(0, startTime);
                 gainNode.gain.linearRampToValueAtTime(volume, startTime + 0.01);
                 gainNode.gain.linearRampToValueAtTime(volume, startTime + duration - 0.01);
@@ -1247,6 +1211,7 @@
                     `✅ Correct! You heard: "${currentText}"`;
                 document.getElementById('displayText').style.color = '#00ff88';
                 
+                // Check if lesson should advance
                 if (stats.streak >= 10 && stats.total >= 50) {
                     const accuracy = (stats.correct / stats.total) * 100;
                     if (accuracy >= 90 && currentLesson < 22) {
@@ -1256,7 +1221,6 @@
                         document.getElementById('displayText').textContent += 
                             ` 🎉 Advancing to lesson ${currentLesson}!`;
                         stats = { correct: 0, total: 0, streak: 0, maxStreak: stats.maxStreak };
-                        saveProgress();
                     }
                 }
             } else {
@@ -1267,14 +1231,16 @@
             }
             
             updateStats();
-            saveProgress();
             
+            // Clear input and keep focus
             document.getElementById('userInput').value = '';
             document.getElementById('userInput').focus();
             
+            // Auto-generate next group after a short delay
             setTimeout(() => {
                 document.getElementById('displayText').style.color = 'white';
                 generateNextGroup();
+                // Ensure focus after the auto-generation
                 setTimeout(() => {
                     const inputField = document.getElementById('userInput');
                     if (!inputField.disabled) {
@@ -1305,71 +1271,7 @@
             `;
         }
 
-        // Progress persistence functions
-        async function saveProgress() {
-            try {
-                await window.storage.set(STORAGE_KEYS.CURRENT_LESSON, currentLesson.toString());
-                await window.storage.set(STORAGE_KEYS.STATS, JSON.stringify(stats));
-                await window.storage.set(STORAGE_KEYS.CUSTOM_CHARS, JSON.stringify(Array.from(customCharacters)));
-                await window.storage.set(STORAGE_KEYS.SELECTED_GROUP, selectedGroup);
-            } catch (error) {
-                console.log('Progress save skipped:', error);
-            }
-        }
-
-        async function loadProgress() {
-            try {
-                const lessonData = await window.storage.get(STORAGE_KEYS.CURRENT_LESSON);
-                if (lessonData) {
-                    currentLesson = parseInt(lessonData.value);
-                }
-
-                const statsData = await window.storage.get(STORAGE_KEYS.STATS);
-                if (statsData) {
-                    stats = JSON.parse(statsData.value);
-                }
-
-                const customCharsData = await window.storage.get(STORAGE_KEYS.CUSTOM_CHARS);
-                if (customCharsData) {
-                    const chars = JSON.parse(customCharsData.value);
-                    customCharacters = new Set(chars);
-                }
-
-                const groupData = await window.storage.get(STORAGE_KEYS.SELECTED_GROUP);
-                if (groupData) {
-                    selectedGroup = groupData.value;
-                }
-            } catch (error) {
-                console.log('No saved progress found, starting fresh');
-            }
-        }
-
-        async function resetProgress() {
-            if (confirm('Are you sure you want to reset all your progress? This cannot be undone.')) {
-                try {
-                    await window.storage.delete(STORAGE_KEYS.CURRENT_LESSON);
-                    await window.storage.delete(STORAGE_KEYS.STATS);
-                    await window.storage.delete(STORAGE_KEYS.CUSTOM_CHARS);
-                    await window.storage.delete(STORAGE_KEYS.SELECTED_GROUP);
-                    
-                    currentLesson = 1;
-                    stats = { correct: 0, total: 0, streak: 0, maxStreak: 0 };
-                    customCharacters.clear();
-                    selectedGroup = 'basic';
-                    
-                    updateCharacterGrid();
-                    updateStats();
-                    selectCharacterGroup('basic');
-                    createCustomCharacterGrid();
-                    
-                    alert('Progress reset successfully!');
-                } catch (error) {
-                    console.error('Error resetting progress:', error);
-                    alert('Progress reset complete (local storage)');
-                }
-            }
-        }
-
+        // Initialize the app when the page loads
         window.addEventListener('load', initializeApp);
     </script>
 </body>
