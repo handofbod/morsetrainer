@@ -199,11 +199,51 @@
             transition: width 0.5s ease;
         }
         
-        .lesson-plan {
+        .collapsible-section {
             background: rgba(255, 255, 255, 0.1);
             padding: 20px;
             border-radius: 15px;
             margin: 20px 0;
+        }
+        
+        .section-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            cursor: pointer;
+            user-select: none;
+        }
+        
+        .section-header h3 {
+            color: #ffd700;
+            margin: 0;
+        }
+        
+        .toggle-btn {
+            background: rgba(255, 255, 255, 0.2);
+            border: none;
+            color: white;
+            padding: 5px 15px;
+            border-radius: 5px;
+            cursor: pointer;
+            font-weight: bold;
+            transition: all 0.3s ease;
+        }
+        
+        .toggle-btn:hover {
+            background: rgba(255, 255, 255, 0.3);
+        }
+        
+        .section-content {
+            margin-top: 20px;
+            overflow: hidden;
+            transition: max-height 0.3s ease, opacity 0.3s ease;
+        }
+        
+        .section-content.collapsed {
+            max-height: 0 !important;
+            opacity: 0;
+            margin-top: 0;
         }
         
         .character-grid {
@@ -258,19 +298,6 @@
             color: #ffd700;
             text-align: center;
             margin: 20px 0;
-        }
-        
-        .character-groups {
-            background: rgba(255, 255, 255, 0.1);
-            padding: 25px;
-            border-radius: 15px;
-            margin: 20px 0;
-        }
-        
-        .character-groups h3 {
-            color: #ffd700;
-            margin-top: 0;
-            text-align: center;
         }
         
         .group-buttons {
@@ -339,19 +366,6 @@
             padding: 15px;
             background: rgba(255, 255, 255, 0.1);
             border-radius: 8px;
-        }
-        
-        .individual-practice {
-            background: rgba(255, 255, 255, 0.1);
-            padding: 25px;
-            border-radius: 15px;
-            margin: 20px 0;
-        }
-        
-        .individual-practice h3 {
-            color: #ffd700;
-            margin-top: 0;
-            text-align: center;
         }
         
         .individual-controls {
@@ -430,19 +444,6 @@
             margin-top: 0;
         }
         
-        .reference-practice {
-            background: rgba(255, 255, 255, 0.1);
-            padding: 25px;
-            border-radius: 15px;
-            margin: 20px 0;
-        }
-        
-        .reference-practice h3 {
-            color: #ffd700;
-            margin-top: 0;
-            text-align: center;
-        }
-        
         .reference-grid {
             display: grid;
             grid-template-columns: repeat(auto-fill, minmax(60px, 1fr));
@@ -518,7 +519,7 @@
         
         <div class="instructions">
             <h3>Koch Method Training Protocol</h3>
-            <p><strong>Goal:</strong> 28 WPM Reception | <strong>Method:</strong> Sound Recognition Only</p>
+            <p><strong>Goal:</strong> High Speed Reception | <strong>Method:</strong> Sound Recognition Only</p>
             <ul>
                 <li>Best practice is to start at your target WPM and not increase read speed over time</li>
                 <li>NO visual morse patterns - train your ear, not your eyes</li>
@@ -532,12 +533,8 @@
             <div class="control-group">
                 <h3>⚡ Speed Settings</h3>
                 <label>Character Speed (WPM):</label>
-                <input type="range" id="charSpeed" min="20" max="35" value="28">
-                <span id="charSpeedValue">28 WPM</span>
-                
-                <label>Overall Speed (WPM):</label>
-                <input type="range" id="overallSpeed" min="5" max="35" value="12">
-                <span id="overallSpeedValue">12 WPM</span>
+                <input type="range" id="wpm" min="10" max="40" value="20">
+                <span id="wpmValue">20 WPM</span>
             </div>
             
             <div class="control-group">
@@ -577,61 +574,6 @@
             </div>
         </div>
 
-        <div class="lesson-plan">
-            <h3>📈 Koch Method Progress</h3>
-            <div class="progress-bar">
-                <div class="progress-fill" id="overallProgress"></div>
-            </div>
-            <p>Lesson <span id="currentLesson">1</span> of 43 | <span id="progressPercent">0%</span> Complete</p>
-            
-            <div class="character-grid" id="characterGrid"></div>
-        </div>
-
-        <div class="reference-practice">
-            <h3>📊 Character Reference - Click to Hear</h3>
-            <p>Click any character below to hear how it sounds in Morse code</p>
-            
-            <div class="reference-grid" id="referenceGrid"></div>
-        </div>
-
-        <div class="character-groups">
-            <h3>🎯 Character Group Selection</h3>
-            <p>Select a character group to practice with. Start simple and work your way up!</p>
-            
-            <div class="group-buttons">
-                <button class="group-btn active" data-group="basic">Basic 5<br><span>E T A O I</span></button>
-                <button class="group-btn" data-group="common">Common 10<br><span>E T A O I N S H R D</span></button>
-                <button class="group-btn" data-group="letters">All Letters<br><span>A-Z (26 chars)</span></button>
-                <button class="group-btn" data-group="numbers">+ Numbers<br><span>Letters + 0-9</span></button>
-                <button class="group-btn" data-group="punctuation">+ Punctuation<br><span>. , ? / - =</span></button>
-                <button class="group-btn" data-group="all">Complete Set<br><span>All 43 characters</span></button>
-            </div>
-            
-            <div class="current-group-display">
-                <h4>Current Practice Set:</h4>
-                <div id="currentGroupChars" class="group-chars-display">E T A O I</div>
-                <p id="groupDescription">Start with the 5 most common letters in English</p>
-            </div>
-        </div>
-
-        <div class="individual-practice">
-            <h3>🎯 Individual Character Practice</h3>
-            <p>Click characters to add/remove from your custom practice set. Selected characters will appear highlighted.</p>
-            
-            <div class="individual-controls">
-                <button id="clearCustom">Clear All</button>
-                <button id="selectAllVisible">Select All Visible</button>
-                <button id="useCustomSet">Use Custom Set</button>
-            </div>
-            
-            <div class="custom-character-grid" id="customCharacterGrid"></div>
-            
-            <div class="custom-set-display">
-                <h4>Your Custom Set: <span id="customCount">0</span> characters</h4>
-                <div id="customSetChars" class="group-chars-display">Click characters above to build your set</div>
-            </div>
-        </div>
-
         <div class="practice-area">
             <div class="timer" id="sessionTimer">20:00</div>
             
@@ -665,6 +607,80 @@
                 <div class="stat-box">
                     <div class="stat-value" id="sessionTime">0</div>
                     <div>Minutes</div>
+                </div>
+            </div>
+        </div>
+
+        <div class="collapsible-section">
+            <div class="section-header" onclick="toggleSection('kochProgress')">
+                <h3>📈 Koch Method Progress</h3>
+                <button class="toggle-btn" id="toggle-kochProgress">Hide</button>
+            </div>
+            <div class="section-content" id="kochProgress">
+                <div class="progress-bar">
+                    <div class="progress-fill" id="overallProgress"></div>
+                </div>
+                <p>Lesson <span id="currentLesson">1</span> of 43 | <span id="progressPercent">0%</span> Complete</p>
+                
+                <div class="character-grid" id="characterGrid"></div>
+            </div>
+        </div>
+
+        <div class="collapsible-section">
+            <div class="section-header" onclick="toggleSection('reference')">
+                <h3>📊 Character Reference - Click to Hear</h3>
+                <button class="toggle-btn" id="toggle-reference">Hide</button>
+            </div>
+            <div class="section-content" id="reference">
+                <p>Click any character below to hear how it sounds in Morse code</p>
+                <div class="reference-grid" id="referenceGrid"></div>
+            </div>
+        </div>
+
+        <div class="collapsible-section">
+            <div class="section-header" onclick="toggleSection('characterGroups')">
+                <h3>🎯 Character Group Selection</h3>
+                <button class="toggle-btn" id="toggle-characterGroups">Hide</button>
+            </div>
+            <div class="section-content" id="characterGroups">
+                <p>Select a character group to practice with. Start simple and work your way up!</p>
+                
+                <div class="group-buttons">
+                    <button class="group-btn active" data-group="basic">Basic 5<br><span>E T A O I</span></button>
+                    <button class="group-btn" data-group="common">Common 10<br><span>E T A O I N S H R D</span></button>
+                    <button class="group-btn" data-group="letters">All Letters<br><span>A-Z (26 chars)</span></button>
+                    <button class="group-btn" data-group="numbers">+ Numbers<br><span>Letters + 0-9</span></button>
+                    <button class="group-btn" data-group="punctuation">+ Punctuation<br><span>. , ? / - =</span></button>
+                    <button class="group-btn" data-group="all">Complete Set<br><span>All 43 characters</span></button>
+                </div>
+                
+                <div class="current-group-display">
+                    <h4>Current Practice Set:</h4>
+                    <div id="currentGroupChars" class="group-chars-display">E T A O I</div>
+                    <p id="groupDescription">Start with the 5 most common letters in English</p>
+                </div>
+            </div>
+        </div>
+
+        <div class="collapsible-section">
+            <div class="section-header" onclick="toggleSection('individualPractice')">
+                <h3>🎯 Individual Character Practice</h3>
+                <button class="toggle-btn" id="toggle-individualPractice">Hide</button>
+            </div>
+            <div class="section-content" id="individualPractice">
+                <p>Click characters to add/remove from your custom practice set. Selected characters will appear highlighted.</p>
+                
+                <div class="individual-controls">
+                    <button id="clearCustom">Clear All</button>
+                    <button id="selectAllVisible">Select All Visible</button>
+                    <button id="useCustomSet">Use Custom Set</button>
+                </div>
+                
+                <div class="custom-character-grid" id="customCharacterGrid"></div>
+                
+                <div class="custom-set-display">
+                    <h4>Your Custom Set: <span id="customCount">0</span> characters</h4>
+                    <div id="customSetChars" class="group-chars-display">Click characters above to build your set</div>
                 </div>
             </div>
         </div>
@@ -768,26 +784,47 @@
             CURRENT_LESSON: 'morse_current_lesson',
             STATS: 'morse_stats',
             CUSTOM_CHARS: 'morse_custom_chars',
-            SELECTED_GROUP: 'morse_selected_group'
+            SELECTED_GROUP: 'morse_selected_group',
+            SETTINGS: 'morse_settings',
+            COLLAPSED_SECTIONS: 'morse_collapsed_sections'
         };
+
+        // Collapsed sections state
+        let collapsedSections = new Set();
 
         // Initialize the application
         function initializeApp() {
             loadProgress();
+            loadSettings();
+            loadCollapsedSections();
             setupEventListeners();
             updateCharacterGrid();
             initializeAudio();
             selectCharacterGroup(selectedGroup);
             createCustomCharacterGrid();
             createReferenceGrid();
+            applyCollapsedSections();
         }
 
         function setupEventListeners() {
             // Speed controls
-            document.getElementById('charSpeed').addEventListener('input', updateSpeedDisplay);
-            document.getElementById('overallSpeed').addEventListener('input', updateSpeedDisplay);
-            document.getElementById('frequency').addEventListener('input', updateAudioDisplay);
-            document.getElementById('volume').addEventListener('input', updateAudioDisplay);
+            document.getElementById('wpm').addEventListener('input', function() {
+                updateSpeedDisplay();
+                saveSettings();
+            });
+            document.getElementById('frequency').addEventListener('input', function() {
+                updateAudioDisplay();
+                saveSettings();
+            });
+            document.getElementById('volume').addEventListener('input', function() {
+                updateAudioDisplay();
+                saveSettings();
+            });
+            
+            // Training mode and group size
+            document.getElementById('trainingMode').addEventListener('change', saveSettings);
+            document.getElementById('groupSize').addEventListener('change', saveSettings);
+            document.getElementById('sessionDuration').addEventListener('change', saveSettings);
             
             // Session controls
             document.getElementById('startSession').addEventListener('click', startTrainingSession);
@@ -833,10 +870,8 @@
         }
 
         function updateSpeedDisplay() {
-            const charSpeed = document.getElementById('charSpeed').value;
-            const overallSpeed = document.getElementById('overallSpeed').value;
-            document.getElementById('charSpeedValue').textContent = charSpeed + ' WPM';
-            document.getElementById('overallSpeedValue').textContent = overallSpeed + ' WPM';
+            const wpm = document.getElementById('wpm').value;
+            document.getElementById('wpmValue').textContent = wpm + ' WPM';
         }
 
         function updateAudioDisplay() {
@@ -873,6 +908,42 @@
             document.getElementById('currentLesson').textContent = currentLesson;
             document.getElementById('progressPercent').textContent = progressPercent;
             document.getElementById('overallProgress').style.width = progressPercent + '%';
+        }
+
+        function toggleSection(sectionId) {
+            const content = document.getElementById(sectionId);
+            const toggleBtn = document.getElementById('toggle-' + sectionId);
+            
+            if (content.classList.contains('collapsed')) {
+                content.classList.remove('collapsed');
+                content.style.maxHeight = content.scrollHeight + 'px';
+                toggleBtn.textContent = 'Hide';
+                collapsedSections.delete(sectionId);
+            } else {
+                content.classList.add('collapsed');
+                content.style.maxHeight = '0px';
+                toggleBtn.textContent = 'Show';
+                collapsedSections.add(sectionId);
+            }
+            
+            saveCollapsedSections();
+        }
+
+        function applyCollapsedSections() {
+            collapsedSections.forEach(sectionId => {
+                const content = document.getElementById(sectionId);
+                const toggleBtn = document.getElementById('toggle-' + sectionId);
+                if (content && toggleBtn) {
+                    content.classList.add('collapsed');
+                    content.style.maxHeight = '0px';
+                    toggleBtn.textContent = 'Show';
+                }
+            });
+            
+            // Set max-height for non-collapsed sections
+            document.querySelectorAll('.section-content:not(.collapsed)').forEach(content => {
+                content.style.maxHeight = content.scrollHeight + 'px';
+            });
         }
 
         function startTrainingSession() {
@@ -1156,12 +1227,11 @@
         }
 
         function playMorseText(text) {
-            const charSpeed = parseInt(document.getElementById('charSpeed').value);
-            const overallSpeed = parseInt(document.getElementById('overallSpeed').value);
+            const wpm = parseInt(document.getElementById('wpm').value);
             
-            const dotDuration = 1200 / charSpeed;
+            const dotDuration = 1200 / wpm;
             const charSpacing = dotDuration * 3;
-            const wordSpacing = (1200 / overallSpeed) * 7 - charSpacing;
+            const wordSpacing = dotDuration * 7;
             
             let currentTime = audioContext.currentTime + 0.1;
             
@@ -1191,8 +1261,8 @@
             const pattern = morseCode[char];
             if (!pattern) return;
             
-            const charSpeed = parseInt(document.getElementById('charSpeed').value);
-            const dotDuration = 1200 / charSpeed;
+            const wpm = parseInt(document.getElementById('wpm').value);
+            const dotDuration = 1200 / wpm;
             
             let currentTime = audioContext.currentTime + 0.1;
             
@@ -1344,6 +1414,62 @@
             }
         }
 
+        async function saveSettings() {
+            try {
+                const settings = {
+                    wpm: document.getElementById('wpm').value,
+                    frequency: document.getElementById('frequency').value,
+                    volume: document.getElementById('volume').value,
+                    trainingMode: document.getElementById('trainingMode').value,
+                    groupSize: document.getElementById('groupSize').value,
+                    sessionDuration: document.getElementById('sessionDuration').value
+                };
+                await window.storage.set(STORAGE_KEYS.SETTINGS, JSON.stringify(settings));
+            } catch (error) {
+                console.log('Settings save skipped:', error);
+            }
+        }
+
+        async function loadSettings() {
+            try {
+                const settingsData = await window.storage.get(STORAGE_KEYS.SETTINGS);
+                if (settingsData) {
+                    const settings = JSON.parse(settingsData.value);
+                    document.getElementById('wpm').value = settings.wpm || 20;
+                    document.getElementById('frequency').value = settings.frequency || 600;
+                    document.getElementById('volume').value = settings.volume || 70;
+                    document.getElementById('trainingMode').value = settings.trainingMode || 'custom';
+                    document.getElementById('groupSize').value = settings.groupSize || 5;
+                    document.getElementById('sessionDuration').value = settings.sessionDuration || 20;
+                    
+                    updateSpeedDisplay();
+                    updateAudioDisplay();
+                }
+            } catch (error) {
+                console.log('No saved settings found, using defaults');
+            }
+        }
+
+        async function saveCollapsedSections() {
+            try {
+                await window.storage.set(STORAGE_KEYS.COLLAPSED_SECTIONS, JSON.stringify(Array.from(collapsedSections)));
+            } catch (error) {
+                console.log('Collapsed sections save skipped:', error);
+            }
+        }
+
+        async function loadCollapsedSections() {
+            try {
+                const sectionsData = await window.storage.get(STORAGE_KEYS.COLLAPSED_SECTIONS);
+                if (sectionsData) {
+                    const sections = JSON.parse(sectionsData.value);
+                    collapsedSections = new Set(sections);
+                }
+            } catch (error) {
+                console.log('No saved collapsed sections, all expanded by default');
+            }
+        }
+
         async function resetProgress() {
             if (confirm('Are you sure you want to reset all your progress? This cannot be undone.')) {
                 try {
@@ -1351,16 +1477,38 @@
                     await window.storage.delete(STORAGE_KEYS.STATS);
                     await window.storage.delete(STORAGE_KEYS.CUSTOM_CHARS);
                     await window.storage.delete(STORAGE_KEYS.SELECTED_GROUP);
+                    await window.storage.delete(STORAGE_KEYS.SETTINGS);
+                    await window.storage.delete(STORAGE_KEYS.COLLAPSED_SECTIONS);
                     
                     currentLesson = 1;
                     stats = { correct: 0, total: 0, streak: 0, maxStreak: 0 };
                     customCharacters.clear();
                     selectedGroup = 'basic';
+                    collapsedSections.clear();
                     
+                    // Reset settings to defaults
+                    document.getElementById('wpm').value = 20;
+                    document.getElementById('frequency').value = 600;
+                    document.getElementById('volume').value = 70;
+                    document.getElementById('trainingMode').value = 'custom';
+                    document.getElementById('groupSize').value = 5;
+                    document.getElementById('sessionDuration').value = 20;
+                    
+                    updateSpeedDisplay();
+                    updateAudioDisplay();
                     updateCharacterGrid();
                     updateStats();
                     selectCharacterGroup('basic');
                     createCustomCharacterGrid();
+                    
+                    // Expand all sections
+                    document.querySelectorAll('.section-content').forEach(content => {
+                        content.classList.remove('collapsed');
+                        content.style.maxHeight = content.scrollHeight + 'px';
+                    });
+                    document.querySelectorAll('.toggle-btn').forEach(btn => {
+                        btn.textContent = 'Hide';
+                    });
                     
                     alert('Progress reset successfully!');
                 } catch (error) {
